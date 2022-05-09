@@ -1,3 +1,5 @@
+import 'package:fdemo2/http/http_request.dart';
+import 'package:fdemo2/page/secondscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,7 +24,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      // home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyMaterialWidget(),
     );
   }
 }
@@ -47,6 +50,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String _result = "";
+  static const String BASE_URL = "https://api.themoviedb.org/3/";
+  static const String key = "c5c821d8780a02eede66063b059576c8";
 
   void _incrementCounter() {
     setState(() {
@@ -56,41 +62,37 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      print("count: $_counter");
+      // _discover();
+    });
+  }
+
+  void _discover() async {
+    //1.path
+    var path = "discover/movie";
+
+    //2.网络请求
+    String api = "$path?api_key=$key";
+    var _request = HttpRequest(BASE_URL);
+    final result = await _request.get(api);
+
+
+    setState(() {
+      result.then((value) => {
+        _result = value.toString()
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -100,14 +102,125 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            Text(
+              '$_result',
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed:(){
+          Navigator.push(context,
+            MaterialPageRoute(builder: (context) => SecondWidget()),
+          );
+        },
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class MyMaterialWidget extends StatelessWidget{
+
+  var image = Container(
+    child: Image.asset('assets/images/home.png')
+  );
+  var columnStar = Column(
+      mainAxisSize: MainAxisSize.min,
+      children:[
+        Icon(Icons.star, color: Colors.green[500]),
+        Text("Tab1")
+      ]
+  );
+  var star = Row(
+    children: [
+      Icon(Icons.add_location, color: Colors.green[500]),
+      Text("Tab1")
+    ],
+  );
+
+  Widget _buildRowWidget(){
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue
+      ),
+      child: Column(
+        children: [
+          star,
+          star
+        ],
+      ),
+    );
+  }
+
+  List<Widget> getImages(int i){
+    var images = <Widget>[];
+    for(int a = 0;a<i;a++){
+      images.add(image);
+    }
+    return images;
+  }
+
+  Widget _buildGraidView(){
+    return GridView.extent(maxCrossAxisExtent: 150,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+        children: getImages(30));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Hello world",
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Hello title")
+        ),
+        body:_buildGraidView(),
+        bottomNavigationBar:  Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          // mainAxisSize: MainAxisSize.min,
+          children:[
+            columnStar,
+            columnStar,
+            columnStar,
+            columnStar,
+            columnStar,
+            star
+          ]
+        ),
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+          onPressed:(){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> SecondWidget()));
+          }
+        ),
+      ),
+    );
+
+  }
+
+
+}
+
+class MyNormalWidget extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(color: Colors.white),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(child: Image.asset('assets/images/home.png')),
+          Expanded(flex: 2, child: Image.asset('assets/images/home.png')),
+          Expanded(child: Image.asset('assets/images/home.png'))
+        ],
+      ),
+    );
+  }
+
 }
