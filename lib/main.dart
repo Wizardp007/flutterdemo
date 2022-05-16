@@ -1,6 +1,11 @@
-import 'package:fdemo2/http/http_request.dart';
-import 'package:fdemo2/page/secondscreen.dart';
+import 'package:fdemo2/page/page_discover.dart';
+import 'package:fdemo2/page/page_main.dart';
+import 'package:fdemo2/page/page_movie_list.dart';
+import 'package:fdemo2/page/page_setting.dart';
+import 'package:fdemo2/page/page_statistics.dart';
 import 'package:flutter/material.dart';
+
+import 'constant/color.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,214 +18,120 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch:ColorConstant.colorPrimary,
       ),
-      // home: MyHomePage(title: 'Flutter Demo Home Page'),
-      home: MyMaterialWidget(),
+      home: MyHomePage(title: 'iMoter'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+
   MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
+
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  String _result = "";
-  static const String BASE_URL = "https://api.themoviedb.org/3/";
-  static const String key = "c5c821d8780a02eede66063b059576c8";
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-      print("count: $_counter");
-      // _discover();
-    });
-  }
-
-  void _discover() async {
-    //1.path
-    var path = "discover/movie";
-
-    //2.网络请求
-    String api = "$path?api_key=$key";
-    var _request = HttpRequest(BASE_URL);
-    final result = await _request.get(api);
-
-
-    setState(() {
-      result.then((value) => {
-        _result = value.toString()
-      });
-    });
-  }
+  int currentBottomIndex = 0;
+  List<Widget> pageWidgets = [
+    const MainWidget(),
+    const ListWidget(),
+    const StatisticsWidget(),
+    const DiscoverWidget(),
+    const SettingWidget()];
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+        actions: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Show Snackbar',
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('This is a snackbar'))
+                );
+              },
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            Text(
-              '$_result',
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:(){
-          Navigator.push(context,
-            MaterialPageRoute(builder: (context) => SecondWidget()),
-          );
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-
-class MyMaterialWidget extends StatelessWidget{
-
-  var image = Container(
-    child: Image.asset('assets/images/home.png')
-  );
-  var columnStar = Column(
-      mainAxisSize: MainAxisSize.min,
-      children:[
-        Icon(Icons.star, color: Colors.green[500]),
-        Text("Tab1")
-      ]
-  );
-  var star = Row(
-    children: [
-      Icon(Icons.add_location, color: Colors.green[500]),
-      Text("Tab1")
-    ],
-  );
-
-  Widget _buildRowWidget(){
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue
-      ),
-      child: Column(
-        children: [
-          star,
-          star
+          )
         ],
       ),
+      body: pageWidgets[currentBottomIndex],
+      bottomNavigationBar: getBottomNavigationBar()// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
-  List<Widget> getImages(int i){
-    var images = <Widget>[];
-    for(int a = 0;a<i;a++){
-      images.add(image);
-    }
-    return images;
+  Widget getBottomNavigationBar(){
+    return BottomNavigationBar(
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      selectedLabelStyle: TextStyle(
+          color: Colors.black
+      ),
+      unselectedLabelStyle: TextStyle(
+          color: Colors.grey
+      ),
+      onTap: onTapChanged,
+      items: [
+        BottomNavigationBarItem(
+            icon: Icon(Icons.local_movies),
+            label: "观影记录"
+        ),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: "我的片单"
+        ),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.moving_rounded),
+            label: "统计"
+        ),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.recommend),
+            label: "发现"
+        ),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "设置"
+        )
+      ],
+      currentIndex:currentBottomIndex,
+    );
+  }
+
+  void onTapChanged(int index){
+    setState(() {
+      currentBottomIndex = index;
+    });
   }
 
   Widget _buildGraidView(){
-    return GridView.extent(maxCrossAxisExtent: 150,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        children: getImages(30));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Hello world",
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Hello title")
-        ),
-        body:_buildGraidView(),
-        bottomNavigationBar:  Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          // mainAxisSize: MainAxisSize.min,
-          children:[
-            columnStar,
-            columnStar,
-            columnStar,
-            columnStar,
-            columnStar,
-            star
-          ]
-        ),
-        floatingActionButton: FloatingActionButton(
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-          onPressed:(){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> SecondWidget()));
-          }
-        ),
-      ),
-    );
-
-  }
-
-
-}
-
-class MyNormalWidget extends StatelessWidget{
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.white),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(child: Image.asset('assets/images/home.png')),
-          Expanded(flex: 2, child: Image.asset('assets/images/home.png')),
-          Expanded(child: Image.asset('assets/images/home.png'))
-        ],
-      ),
-    );
+    return Align(alignment: Alignment.center,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Image.asset('assets/images/home.png'),
+            ),
+            Expanded(
+              flex: 2,
+              child: Image.asset('assets/images/home.png'),
+            ),
+            Expanded(
+              child: Image.asset('assets/images/home.png'),
+            ),
+          ],
+        ));
   }
 
 }

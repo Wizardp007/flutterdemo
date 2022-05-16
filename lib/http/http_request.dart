@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:convert' as Convert;
 import 'dart:io';
+import 'package:fdemo2/utils_print.dart';
 import 'package:http/http.dart' as http;
 
 typedef RequestCallBack = void Function(Map data);
 
 class HttpRequest {
-  static requestGET (
+  final baseUrl;
+
+  HttpRequest(this.baseUrl);
+
+  static requestGET(
       String authority, String unencodedPath, RequestCallBack callBack,
       [Map<String, String>? queryParameters]) async {
     try {
       var httpClient = new HttpClient();
-      //http://api.douban.com/v2/movie/top250?start=25&count=10
       var uri = new Uri.http(authority, unencodedPath, queryParameters);
       var request = await httpClient.getUrl(uri);
       var response = await request.close();
@@ -23,13 +27,11 @@ class HttpRequest {
     }
   }
 
-  final baseUrl;
-
-  HttpRequest(this.baseUrl);
-
+  ///Get请求
   Future<dynamic> get(String path, {Map<String, String>? headers}) async {
     try {
       Uri uri = Uri.parse(baseUrl + path);
+      PrintLog.log(uri.toString());
       http.Response response = await http.get(uri, headers: headers);
       final statusCode = response.statusCode;
       final body = response.body;
@@ -42,7 +44,8 @@ class HttpRequest {
     }
   }
 
-  Future<dynamic> getResponseBody(String uri, {Map<String, String>? headers}) async {
+  Future<dynamic> getResponseBody(String uri,
+      {Map<String, String>? headers}) async {
     try {
       http.Response response = await http.get(baseUrl + uri, headers: headers);
       final statusCode = response.statusCode;
@@ -56,9 +59,13 @@ class HttpRequest {
     }
   }
 
-  Future<dynamic> post(String uri, dynamic body, {Map<String, String>? headers}) async {
+
+   ///post 请求
+  Future<dynamic> post(String uri, dynamic body,
+      {Map<String, String>? headers}) async {
     try {
-      http.Response response = await http.post(baseUrl + uri, body: body, headers: headers);
+      http.Response response =
+          await http.post(baseUrl + uri, body: body, headers: headers);
       final statusCode = response.statusCode;
       final responseBody = response.body;
       var result = Convert.jsonDecode(responseBody);
@@ -70,5 +77,3 @@ class HttpRequest {
     }
   }
 }
-
-
