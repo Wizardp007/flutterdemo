@@ -6,7 +6,9 @@ import 'package:fdemo2/utils_print.dart';
 class TMDBApiRequest {
 
   static const String BASE_URL = "https://api.themoviedb.org/3";
-  static const String key = "你的tmdkey";
+  static const String IMAGE_URL = "https://image.tmdb.org"+ApiConstant.path_image_stream;
+  static const String key = "你的key";
+
 
 
 

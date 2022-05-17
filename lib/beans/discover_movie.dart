@@ -4,6 +4,10 @@ class DiscoverMovie {
   int? totalResults;
   int? totalPages;
 
+  List<Results>? getResults(){
+    return results;
+  }
+
 
   DiscoverMovie({
       this.page, 

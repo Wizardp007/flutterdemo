@@ -73,10 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget getBottomNavigationBar(){
     return BottomNavigationBar(
-      selectedItemColor: Colors.black,
+      selectedItemColor: ColorConstant.colorPrimary[500],
       unselectedItemColor: Colors.grey,
       selectedLabelStyle: TextStyle(
-          color: Colors.black
+          color: ColorConstant.colorPrimary[500]
       ),
       unselectedLabelStyle: TextStyle(
           color: Colors.grey
